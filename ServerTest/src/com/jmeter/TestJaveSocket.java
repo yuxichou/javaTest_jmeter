@@ -1,6 +1,6 @@
 package com.jmeter;
 
-import com.jmeter.protocol.MsgProto;
+import com.jmeter.protocol.MsgProtobuf;
 import com.jmeter.utils.BuildMsg;
 import com.jmeter.utils.Funcations;
 import org.apache.jmeter.config.Arguments;
@@ -9,12 +9,8 @@ import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.log.Logger;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Iterator;
-
-import static com.jmeter.utils.VideoTranscoding.changeVideoByte;
-import static com.sun.org.apache.xml.internal.security.utils.JavaUtils.getBytesFromFile;
 
 
 public class TestJaveSocket extends AbstractJavaSamplerClient {
@@ -39,6 +35,10 @@ public class TestJaveSocket extends AbstractJavaSamplerClient {
 
 	private String user_id;
 
+	private String password;
+
+	private String imei;
+
 	private String RequestTimeout;
 
 	private String ResponseTimeout;
@@ -47,7 +47,9 @@ public class TestJaveSocket extends AbstractJavaSamplerClient {
 
 	private String isWatchSendVoice;
 
-	private MsgProto.Message message;
+	private MsgProtobuf.LoginRequest ml;
+
+
 
 	public void setupTest(JavaSamplerContext context){
 		
@@ -83,11 +85,15 @@ public class TestJaveSocket extends AbstractJavaSamplerClient {
 
 	      ResponseTimeout = context.getParameter( "ResponseTimeout" , "" );
 
-		 user_id = context.getParameter( "user_id" , "" );
+		  user_id = context.getParameter( "user_id" , "" );
 
-		 socketType=context.getParameter("socketType(登录:1 长连接:2 通知:3)","");
+		  password=context.getParameter("password","");
 
-		 isWatchSendVoice=context.getParameter("isVoice","");
+		  imei=context.getParameter("imei","");
+
+		  socketType=context.getParameter("socketType(登录:1 长连接:2 通知:3)","");
+
+		  isWatchSendVoice=context.getParameter("isVoice","");
 
 //		  watchId = context.getParameter("watchId", "");
 
@@ -112,6 +118,10 @@ public class TestJaveSocket extends AbstractJavaSamplerClient {
 		params.addArgument("ResponseTimeout","");
 		
 		params.addArgument("user_id","");
+
+		params.addArgument("password","");
+
+		params.addArgument("imei","");
 
 		params.addArgument("socketType(登录:1 长连接:2 通知:3)","");
 
@@ -144,23 +154,16 @@ public class TestJaveSocket extends AbstractJavaSamplerClient {
 
 		if(socketType.equals("1")){
 
-			message = BuildMsg.loginByUserId(user_id);
+			ml = BuildMsg.loginByUser(user_id,password,imei);
 
-		}else if(socketType.equals("2")){
-
-            message=BuildMsg.getLinkMessage(MsgProto.MessageType.Link_Request);
-
-		}else if(socketType.equals("3")){
-
-			
 
 		}
 
-		sc.sndByte(BuildMsg.getByteArrayByMessage(message));
+		sc.sndByte(BuildMsg.getByteArrayByRequest(ml));
 
-		log.info("发送的命令类型为: "+message.getMsgType()+" 登录id: "+message.getRequest().getLoginRequest().getUserId()+" 序列:  "+message.getSequence());
+		log.info(" 登录id: "+ml.getUserId()+" 序列:  "+ml.getSequence());
 
-		results.setSamplerData("发送的命令类型为: "+message.getMsgType()+" 登录id: "+message.getRequest().getLoginRequest().getUserId()+" 序列:  "+message.getSequence());
+		results.setSamplerData("登录id: "+ml.getUserId()+" 序列:  "+ml.getSequence());
 
 		log.info("socket 是否连接:  "+sc.isConnected());
 
@@ -175,19 +178,34 @@ public class TestJaveSocket extends AbstractJavaSamplerClient {
 			    sc.setRespTimeOut(Integer.parseInt(ResponseTimeout));
 
 			    log.info("开始接收返回数据");
+                //获取返回数据
+                byte[] resp = sc.rcvProtoBuf();
 
-				MsgProto.Message mmResp = MsgProto.Message.parseFrom(sc.rcvProtoBuf());
+                byte[] proBufLengthByte = new byte[4];
+                 //读取返回数据长度
+                System.arraycopy(resp, 4, proBufLengthByte, 0, 4);
+
+                int proBufLength = Funcations.byteArray2Int(proBufLengthByte);
+
+                log.info("原始数据长度: "+proBufLength);
+               // 获取真实返回数据
+                byte[] realResp = new byte[proBufLength];
+
+                System.arraycopy(resp,12,realResp,0,proBufLength);
+
+              //解析返回数据为"登录返回"类型
+				MsgProtobuf.LoginResponse mmResp = MsgProtobuf.LoginResponse.parseFrom(realResp);
 
 
 				
-				log.info("socket返回: "+" 消息类型为: "+ mmResp.getMsgType() + " 序列为: "+mmResp.getSequence());
+				log.info("socket返回: "+" 消息类型为: "+ mmResp.getDefaultInstanceForType() + " 序列为: "+mmResp.getSequence()+"data: "+ mmResp.getData());
 				
-				results.setResponseData(" 消息类型为: "+ mmResp.getMsgType() + " 序列为: "+mmResp.getSequence());
+				results.setResponseData(mmResp.getData());
 				
 				results.setDataType(SampleResult.TEXT);
 				
 				
-			 if(mmResp.getResponse().hasResult()){
+			 if(mmResp.hasData()){
 
 						results.setSuccessful(true);
 				}else{

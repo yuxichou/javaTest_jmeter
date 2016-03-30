@@ -781,7 +781,7 @@
             </elementProp>
             <elementProp name="dataGetAgeVaccine" elementType="Argument">
               <stringProp name="Argument.name">dataGetAgeVaccine</stringProp>
-              <stringProp name="Argument.value">{&quot;user_id&quot;:&quot;WID&quot;,&quot;age&quot;:&quot;${__Random(1,28,)}&quot;}</stringProp>
+              <stringProp name="Argument.value">{&quot;user_id&quot;:&quot;WID&quot;,&quot;age&quot;:&quot;${__Random(1,24,)}&quot;}</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
               <stringProp name="Argument.desc">获取年龄下疫苗接种情况</stringProp>
             </elementProp>
@@ -3196,7 +3196,7 @@ data=data.replace(&quot;WID&quot;,vars.get(&quot;watchid&quot;));
 
 data=data.replace(&quot;GID&quot;,vars.get(&quot;growthid&quot;));
 
-log.info(&quot;加密前的data：&quot;+data);
+log.info(&quot;编辑宝贝成长记录加密前的data：&quot;+data);
 
 String dataEncry = EncryAndDescrypt.encryptThreeDESECB(data);
 
@@ -4001,7 +4001,7 @@ prev.setResponseData(resp.replace(dt,da));
               <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
                 <collectionProp name="Asserion.test_strings">
-                  <stringProp name="49586">200</stringProp>
+                  <stringProp name="-671696245">&quot;code&quot;:&quot;200&quot;</stringProp>
                 </collectionProp>
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
@@ -6256,7 +6256,7 @@ data=data.replace(&quot;WID&quot;,vars.get(&quot;watchid&quot;));
 
 data=data.replace(&quot;GID&quot;,vars.get(&quot;growthid&quot;));
 
-log.info(&quot;加密前的data：&quot;+data);
+log.info(&quot;编辑宝贝成长记录加密前的data：&quot;+data);
 
 String dataEncry = EncryAndDescrypt.encryptThreeDESECB(data);
 
