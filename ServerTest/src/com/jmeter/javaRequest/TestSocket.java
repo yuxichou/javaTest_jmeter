@@ -1,4 +1,4 @@
-package com.jmeter;
+package com.jmeter.javaRequest;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Iterator;
@@ -10,7 +10,6 @@ import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.log.Logger;
 
-import static com.jmeter.utils.Funcations.bytesToHexString;
 import static com.jmeter.utils.VideoTranscoding.changeVideoByte;
 import static com.sun.org.apache.xml.internal.security.utils.JavaUtils.getBytesFromFile;
 

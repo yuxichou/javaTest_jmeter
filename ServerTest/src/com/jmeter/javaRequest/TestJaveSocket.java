@@ -1,9 +1,9 @@
-package com.jmeter;
+package com.jmeter.javaRequest;
 
 import com.google.protobuf.GeneratedMessage;
 import com.jmeter.protocol.MsgProtobuf;
 import com.jmeter.protocol.MsgType;
-import com.jmeter.utils.BuildMsg;
+import com.jmeter.protocol.BuildMsg;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;

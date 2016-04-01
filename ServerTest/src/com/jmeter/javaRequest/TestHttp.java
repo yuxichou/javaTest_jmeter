@@ -1,4 +1,4 @@
-package com.jmeter;
+package com.jmeter.javaRequest;
 
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;

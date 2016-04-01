@@ -12,108 +12,64 @@ required  sequence=1;
 required  version=2;
 
 响应公共参数：
-
 请求消息格式：_Request
-
 响应消息格式：_Response
 
-
 请求公共参数：
-
 required sequence=1;
-
 required version=2;
-
-
 响应公共参数：
-
 required sequence=1;
-
 required version=2;
-
 required status=3;
-
 核心消息：
-
 message NotificationRequest {
-
 required sequence=1;
-
 required version=2;
-
 required string type = 3;
-
 optional string data = 4;
 
 }
-
 message NotificationResponse{
-
 required sequence=1;
-
 required version=2;
-
 required status=3;
-
 optional data=4;
-
 }
-
-
 message LoginRequest{
-
 required sequence=1;
-
 required version=2;
-
 required userId=4;
-
 optional imei=4;
-
 required passwd=5;
-
 }
-
 message LoginResponse{
-
 required sequence=1;
-
 required version=2;
-
 required status=3;
-
 optional data=4;
-
 }
-
 message LinkRequest{
-
 }
-
 message LinkResponse{
-
 }
-
-
 协议头说明
 版本   1代表头部长度是12字节
 数据长度    根据数据而变
-
 消息类型
 0-登录请求 1-登录响应 2-通知请求 3-通知响应  4-link请求 5-link响应
 
 测试地址  192.168.1.111   端口8888
 
-
  */
 
-
-package com.jmeter.utils;
+package com.jmeter.protocol;
 
 import com.google.protobuf.GeneratedMessage;
 import com.jmeter.protocol.MsgConstants;
 import com.jmeter.protocol.MsgProtobuf;
 import com.jmeter.protocol.MsgType;
+import com.jmeter.utils.Funcations;
 
 /**
  * Created by zhouzhangyin on 16/3/15.
@@ -240,28 +196,22 @@ public class BuildMsg {
      */
     public static  byte[] getByteArrayByRequest(GeneratedMessage msg,int type){
 
+        //获取要发送protobuf的长度
+        int protobufMsgSize = msg.getSerializedSize();
+        //要发送的包长度=协议头长度+protobuf长度
+        byte[] sendBytes = new byte[12 + protobufMsgSize];
 
-        int serializedSize = msg.getSerializedSize();
+        System.arraycopy(Funcations.int2ByteArray(MsgConstants.VERSION),0,sendBytes,0,4);//协议版本：char,4byte
 
-        byte[] result = new byte[12 + serializedSize];
+        System.arraycopy(Funcations.int2ByteArray(protobufMsgSize), 0, sendBytes, 4, 4);//数据长度：程序计算,4byte
 
-//        System.arraycopy(Funcations.int2Byte(1), 0, result, 0, 1);//协议头标志：1 类型：char,1byte
-//        System.arraycopy(Funcations.int2Byte(1), 0, result, 1, 4);//协议版本：1 类型：char,1byte
+        System.arraycopy(Funcations.int2ByteArray(type),0,sendBytes,8,4);//消息类型,4byte
 
-        System.arraycopy(Funcations.int2ByteArray(MsgConstants.VERSION),0,result,0,4);//协议版本：char,4byte
-        System.arraycopy(Funcations.int2ByteArray(serializedSize), 0, result, 4, 4);//数据长度：程序计算,4byte
-        System.arraycopy(Funcations.int2ByteArray(type),0,result,8,4);//消息类型
+        System.arraycopy(msg.toByteArray(), 0, sendBytes, 12, protobufMsgSize);
 
-
-//        System.arraycopy(Funcations.int2Byte(19), 0, result, 2, 1);//头部长度：19 类型：char,1byte
-//        System.arraycopy(Funcations.int2ByteArray(sequence), 0, result, 7, 4);//序列号：程序自增计算,4byte
-//        System.arraycopy(Funcations.int2ByteArray(0), 0, result, 11, 4);//保留字段：填0,4byte
-//        System.arraycopy(Funcations.int2ByteArray(0), 0, result, 15, 4);//保留字段：填0,4byte
-
-
-        System.arraycopy(msg.toByteArray(), 0, result, 12, serializedSize);
         sequence++;
-        return result;
+
+        return sendBytes;
     }
 
 

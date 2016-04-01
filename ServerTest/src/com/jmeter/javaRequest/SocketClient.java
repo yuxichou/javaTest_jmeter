@@ -1,4 +1,4 @@
-package com.jmeter;
+package com.jmeter.javaRequest;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -79,6 +79,7 @@ public class SocketClient {
 				}
 
 				serverOutput = s.getOutputStream();
+
 				serverInput = s.getInputStream();
 
 			} catch (Exception e) {

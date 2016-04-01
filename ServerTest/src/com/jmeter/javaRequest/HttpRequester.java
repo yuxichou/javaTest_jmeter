@@ -1,4 +1,4 @@
-package com.jmeter;
+package com.jmeter.javaRequest;
 
 /**
  * Created by zhouzhangyin on 16/2/3.
